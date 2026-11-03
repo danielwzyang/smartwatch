@@ -1,0 +1,29 @@
+# big datasets stay local
+data/raw/
+*.zip
+*.pkl
+
+# arduino / c++ build junk
+build/
+*.bin
+*.elf
+*.hex
+*.o
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# editors / os
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# secrets (wifi passwords etc)
+secrets.h
+.env
