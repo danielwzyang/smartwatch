@@ -80,8 +80,9 @@ void setup() {
 
   // these settings matter, our algorithm assumes 50 samples/sec and green light
 
-  // 0 = off, 255 = max, change this if the wave is tiny or maxed out
-  byte ledBrightness = 0x1F;
+  // 0 = off, 255 = max
+  // higher brightness bc ppg on wrist vs finger is smaller
+  byte ledBrightness = 0x7F;
   // no averaging, keeps the output at exactly 50 hz
   byte sampleAverage = 1;
   // 3 = red + ir + green
@@ -93,20 +94,23 @@ void setup() {
   int adcRange = 4096;
 
   sensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange);
+
+  sensor.setPulseAmplitudeRed(0);
+  sensor.setPulseAmplitudeIR(0);
 }
 
 void loop() {
   // pull any new samples off the sensor
+  static int n = 0;
   sensor.check();
 
   while (sensor.available()) {
     // "name:value" format makes the serial plotter label each line
-    Serial.print("green:");
-    Serial.print(sensor.getFIFOGreen());
-    Serial.print(",ir:");
-    Serial.print(sensor.getFIFOIR());
-    Serial.print(",red:");
-    Serial.println(sensor.getFIFORed());
+    if (n++ % 5 == 0) {
+      // print every 5 samples bc the serial plotter only shows 50 points
+      Serial.print("green:");
+      Serial.println(sensor.getFIFOGreen());
+    }
 
     sensor.nextSample();
   }
