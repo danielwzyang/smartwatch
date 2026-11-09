@@ -38,7 +38,8 @@ void loop() {
   while (ppg_sensor.available()) {
     // accelerometer isn't hooked up yet so just pass in accel = (0, 0, 0)
     // FIFO for oldest samples first
-    hr::addSample(ppg_sensor.getFIFOGreen(), 0, 0, 0);
+    float green = ppg_sensor.getFIFOGreen();
+    hr::addSample(green, 0, 0, 0);
     ppg_sensor.nextSample();
     samples++;
 
@@ -47,7 +48,7 @@ void loop() {
     if (samples % hr::RATE == 0) bpm = hr::getBPM();
     if (samples % 4 == 0) {
       Serial.print("pulse:");
-      Serial.print(hr::filtered_ppg[hr::N - 1]);
+      Serial.print(green < hr::CONTACT_MIN ? 0 : hr::filtered_ppg[hr::N - 1]);
       Serial.print(",bpm:");
       if (bpm) Serial.println(bpm);
       else Serial.println("---");
