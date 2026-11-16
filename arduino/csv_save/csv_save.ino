@@ -56,32 +56,31 @@ void append_line(const char *path, const char *line) {
   f.close();
 }
 
+void fail(const char *msg) {
+  while (true) {
+    Serial.println(msg);
+    delay(1000);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin();
 
-  if (!ppg_sensor.begin()) {
-    Serial.println("ppg sensor not found");
-    while (1) ;
-  }
+  if (!ppg_sensor.begin()) fail("ppg sensor not found");
 
   ppg_sensor.setup(hr::BRIGHTNESS, 1, 3, hr::RATE, 411, 4096);
   ppg_sensor.setPulseAmplitudeRed(0);
   ppg_sensor.setPulseAmplitudeIR(0);
 
-  if (!accel_sensor.begin_I2C()) {
-    Serial.println("accelerometer not found");
-    while (1) ;
-  }
+  if (!accel_sensor.begin_I2C()) fail("accelerometer not found");
+
   accel_sensor.setAccelRange(LSM6DS_ACCEL_RANGE_2_G); // +/- 2g
   accel_sensor.setAccelDataRate(LSM6DS_RATE_104_HZ);
 
   // formatOnFail = true
   // the first time the fs starts there's nothing to mount so littlefs will format it
-  if (!LittleFS.begin(true)) {
-    Serial.println("littlefs failed");
-    while (1) ;
-  }
+  if (!LittleFS.begin(true)) fail("littlefs failed");
 
   // brand new files: write the column names first
   if (!LittleFS.exists(hr_path)) clear_log(hr_path, hr_header);
@@ -104,7 +103,8 @@ void loop() {
   if (Serial.available()) {
     char cmd = Serial.read();
     if (cmd == 'd') dump_logs();
-    if (cmd == 'c') clear_logs();
+    else if (cmd == 'c') clear_logs();
+    else if (cmd == 'x') Serial.println("logger running.");
   }
 
   ppg_sensor.check();
